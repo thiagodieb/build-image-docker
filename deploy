@@ -1,0 +1,28 @@
+#!/bin/bash
+echo "Deploy "
+echo ""
+VERSION="$(docker image ls wordpress-link-projeto | awk '{print $2}' | awk 'NR==2' )"
+echo "-----------"
+echo "Version current: "
+echo $VERSION
+echo "-----------"
+NUM=0.1
+R=$(bc -l <<<"$NUM+$VERSION")
+echo "Increment version: "
+echo $R
+echo "-----------"
+echo "Gerando imagem conforme arquivos do bitbucket"
+docker build --no-cache --tag=wordpress-link-projeto:$R .
+echo ""
+echo "-----------"
+echo "Criando tag da imagem da versão:$R "
+docker tag wordpress-link-projeto:$R docker-registry.com.br/dev/wordpress:$R
+echo ""
+echo "Criando tag da imagem da versão latest "
+docker tag wordpress-link-projeto:$R docker-registry.com.br/dev/wordpress:latest
+echo ""
+echo "Enviando imagem para repositorio opneshift"
+docker push docker-registry.com.br/dev/wordpress:$R
+echo "----------"
+echo "Enviando imagem para repositorio opneshift"
+docker push docker-registry.com.br/dev/wordpress:latest
